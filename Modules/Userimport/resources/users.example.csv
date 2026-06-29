@@ -1,0 +1,4 @@
+id,name,first_name,last_name,email,role1,role2,role3,role4
+1001,Anna Schmidt,Anna,Schmidt,anna.schmidt@example.com,admin,editor,,
+1002,Ben Krause,Ben,Krause,ben.krause@example.com,editor,,,
+1003,Clara Wolf,Clara,Wolf,clara.wolf@example.com,viewer,editor,admin,

@@ -1,0 +1,30 @@
+{
+    "name": "nwidart/userimport",
+    "description": "",
+    "authors": [
+        {
+            "name": "Nicolas Widart",
+            "email": "n.widart@gmail.com"
+        }
+    ],
+    "extra": {
+        "laravel": {
+            "providers": [],
+            "aliases": {
+
+            }
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "Modules\\Userimport\\": "app/",
+            "Modules\\Userimport\\Database\\Factories\\": "database/factories/",
+            "Modules\\Userimport\\Database\\Seeders\\": "database/seeders/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Modules\\Userimport\\Tests\\": "tests/"
+        }
+    }
+}
