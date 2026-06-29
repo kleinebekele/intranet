@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+export PATH="/opt/plesk/php/8.3/bin:$PATH"
 #
 # Deploy-Skript für das Intranet (Plesk / Laravel).
 #
