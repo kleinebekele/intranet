@@ -3,44 +3,33 @@
 namespace Modules\Kantine\Providers;
 
 use Illuminate\Console\Scheduling\Schedule;
+use Modules\Kantine\Console\HolidayImportCommand;
 use Nwidart\Modules\Support\ModuleServiceProvider;
 
 class KantineServiceProvider extends ModuleServiceProvider
 {
-    /**
-     * The name of the module.
-     */
     protected string $name = 'Kantine';
 
-    /**
-     * The lowercase version of the module name.
-     */
     protected string $nameLower = 'kantine';
 
-    /**
-     * Command classes to register.
-     *
-     * @var string[]
-     */
-    // protected array $commands = [];
+    /** @var string[] */
+    protected array $commands = [
+        HolidayImportCommand::class,
+    ];
 
-    /**
-     * Provider classes to register.
-     *
-     * @var string[]
-     */
+    /** @var string[] */
     protected array $providers = [
         EventServiceProvider::class,
         RouteServiceProvider::class,
     ];
 
     /**
-     * Define module schedules.
-     *
-     * @param  $schedule
+     * Feiertage-Import einmal im Monat automatisch ausführen.
      */
-    // protected function configureSchedules(Schedule $schedule): void
-    // {
-    //     $schedule->command('inspire')->hourly();
-    // }
+    protected function configureSchedules(Schedule $schedule): void
+    {
+        $schedule->command('kantine:import-holidays')
+            ->monthlyOn(1, '04:00')
+            ->withoutOverlapping();
+    }
 }

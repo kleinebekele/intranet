@@ -3,54 +3,136 @@
 namespace Modules\Kantine\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\View\View;
+use Modules\Kantine\Models\KantineClosedDay;
+use Modules\Kantine\Models\KantineHoliday;
+use Modules\Kantine\Models\KantineSetting;
+use Modules\Kantine\Services\HolidayImportService;
 
 class KantineController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Übersicht / Dashboard der Kantine.
      */
-    public function index()
+    public function index(): View
     {
-        return view('kantine::index');
+        $settings = KantineSetting::current();
+
+        $holidays = KantineHoliday::where('bundesland', $settings->bundesland)
+            ->orderBy('date')
+            ->get();
+
+        $closedDays = KantineClosedDay::orderBy('date')->get();
+
+        return view('kantine::index', [
+            'settings' => $settings,
+            'holidays' => $holidays,
+            'closedDays' => $closedDays,
+            'bundeslaender' => KantineSetting::BUNDESLAENDER,
+        ]);
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Einstellungen speichern (Wochentage + Bundesland).
      */
-    public function create()
+    public function updateSettings(Request $request): RedirectResponse
     {
-        return view('kantine::create');
+        $validated = $request->validate([
+            'bundesland' => ['required', 'string', 'size:2', 'in:'.implode(',', array_keys(KantineSetting::BUNDESLAENDER))],
+            'monday_open' => ['nullable'],
+            'tuesday_open' => ['nullable'],
+            'wednesday_open' => ['nullable'],
+            'thursday_open' => ['nullable'],
+            'friday_open' => ['nullable'],
+            'saturday_open' => ['nullable'],
+            'sunday_open' => ['nullable'],
+        ]);
+
+        $settings = KantineSetting::current();
+
+        $days = ['monday_open', 'tuesday_open', 'wednesday_open', 'thursday_open', 'friday_open', 'saturday_open', 'sunday_open'];
+
+        foreach ($days as $day) {
+            $settings->{$day} = isset($validated[$day]);
+        }
+
+        $settings->bundesland = $validated['bundesland'];
+        $settings->save();
+
+        return redirect()->route('kantine.index')
+            ->with('success', 'Einstellungen gespeichert.');
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Feiertage und Schulferien importieren.
      */
-    public function store(Request $request) {}
-
-    /**
-     * Show the specified resource.
-     */
-    public function show($id)
+    public function importHolidays(HolidayImportService $service): RedirectResponse
     {
-        return view('kantine::show');
+        $settings = KantineSetting::current();
+        $result = $service->import($settings->bundesland);
+
+        $message = "Import abgeschlossen: {$result['feiertage']} Feiertage, {$result['schulferien']} Schulferien.";
+
+        if (! empty($result['errors'])) {
+            $message .= ' Fehler: '.implode('; ', $result['errors']);
+
+            return redirect()->route('kantine.index')
+                ->with('warning', $message);
+        }
+
+        return redirect()->route('kantine.index')
+            ->with('success', $message);
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * Manuellen Schließtag hinzufügen.
      */
-    public function edit($id)
+    public function storeClosedDay(Request $request): RedirectResponse
     {
-        return view('kantine::edit');
+        $validated = $request->validate([
+            'date' => ['required', 'date', 'after_or_equal:today'],
+            'reason' => ['nullable', 'string', 'max:255'],
+        ]);
+
+        $exists = KantineClosedDay::where('date', $validated['date'])->exists();
+
+        if ($exists) {
+            return redirect()->route('kantine.index')
+                ->with('error', 'Dieser Tag ist bereits als geschlossen eingetragen.');
+        }
+
+        KantineClosedDay::create([
+            'date' => $validated['date'],
+            'reason' => $validated['reason'] ?? null,
+        ]);
+
+        return redirect()->route('kantine.index')
+            ->with('success', 'Schließtag hinzugefügt.');
     }
 
     /**
-     * Update the specified resource in storage.
+     * Manuellen Schließtag entfernen.
      */
-    public function update(Request $request, $id) {}
+    public function destroyClosedDay(KantineClosedDay $closedDay): RedirectResponse
+    {
+        $closedDay->delete();
+
+        return redirect()->route('kantine.index')
+            ->with('success', 'Schließtag entfernt.');
+    }
 
     /**
-     * Remove the specified resource from storage.
+     * Alle importierten Feiertage/Schulferien löschen.
      */
-    public function destroy($id) {}
+    public function clearHolidays(): RedirectResponse
+    {
+        $settings = KantineSetting::current();
+
+        KantineHoliday::where('bundesland', $settings->bundesland)->delete();
+
+        return redirect()->route('kantine.index')
+            ->with('success', 'Alle importierten Feiertage und Schulferien wurden gelöscht.');
+    }
 }
