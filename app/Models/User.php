@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Modules\Userimport\Models\Role;
 
-#[Fillable(['external_id', 'name', 'first_name', 'last_name', 'email', 'password', 'avatar_path', 'notify_email', 'notify_browser'])]
+#[Fillable(['external_id', 'name', 'first_name', 'last_name', 'email', 'is_admin', 'password', 'avatar_path', 'notify_email', 'notify_browser'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
@@ -34,7 +34,26 @@ class User extends Authenticatable
             'password' => 'hashed',
             'notify_email' => 'boolean',
             'notify_browser' => 'boolean',
+            'is_admin' => 'boolean',
         ];
+    }
+
+    /**
+     * Whether the user is an administrator (full access to every route).
+     */
+    public function isAdmin(): bool
+    {
+        return (bool) $this->is_admin;
+    }
+
+    /**
+     * Names of all roles assigned to the user.
+     *
+     * @return array<int, string>
+     */
+    public function roleNames(): array
+    {
+        return $this->roles()->pluck('name')->all();
     }
 
     /**
