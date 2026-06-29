@@ -24,6 +24,31 @@
             {{ __('Profil') }}
         </x-sidebar-link>
 
-        {{-- Module navigation is injected automatically here (Schritt 5). --}}
+        {{-- Module-Navigation: wird automatisch aus allen aktiven Modulen eingelesen. --}}
+        @if (! empty($moduleNavigation) && $moduleNavigation->isNotEmpty())
+            <div class="pt-4">
+                <p class="px-3 pb-1 text-xs font-semibold uppercase tracking-wider text-gray-400">{{ __('Module') }}</p>
+
+                @foreach ($moduleNavigation as $item)
+                    @php
+                        $href = $item['route'] && \Illuminate\Support\Facades\Route::has($item['route'])
+                            ? route($item['route'])
+                            : ($item['url'] ?? '#');
+                        $isActive = $item['active'] ? request()->routeIs($item['active']) : false;
+                    @endphp
+
+                    <x-sidebar-link :href="$href" :active="$isActive">
+                        @if ($item['icon'])
+                            {!! $item['icon'] !!}
+                        @else
+                            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+                            </svg>
+                        @endif
+                        {{ $item['label'] }}
+                    </x-sidebar-link>
+                @endforeach
+            </div>
+        @endif
     </nav>
 </aside>

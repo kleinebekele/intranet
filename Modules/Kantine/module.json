@@ -1,0 +1,11 @@
+{
+    "name": "Kantine",
+    "alias": "kantine",
+    "description": "",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\Kantine\\Providers\\KantineServiceProvider"
+    ],
+    "files": []
+}
