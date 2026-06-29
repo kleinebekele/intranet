@@ -1,0 +1,11 @@
+{
+    "name": "Userimport",
+    "alias": "userimport",
+    "description": "",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\Userimport\\Providers\\UserimportServiceProvider"
+    ],
+    "files": []
+}

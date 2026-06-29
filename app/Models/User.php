@@ -8,12 +8,14 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Modules\Userimport\Models\Role;
 
-#[Fillable(['name', 'first_name', 'last_name', 'email', 'password', 'avatar_path', 'notify_email', 'notify_browser'])]
+#[Fillable(['external_id', 'name', 'first_name', 'last_name', 'email', 'password', 'avatar_path', 'notify_email', 'notify_browser'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
@@ -33,6 +35,16 @@ class User extends Authenticatable
             'notify_email' => 'boolean',
             'notify_browser' => 'boolean',
         ];
+    }
+
+    /**
+     * Roles assigned to the user (n:n).
+     *
+     * @return BelongsToMany<Role, $this>
+     */
+    public function roles(): BelongsToMany
+    {
+        return $this->belongsToMany(Role::class, 'role_user');
     }
 
     /**

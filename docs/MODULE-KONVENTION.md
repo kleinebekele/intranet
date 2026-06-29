@@ -166,6 +166,36 @@ php artisan migrate                    # alle (inkl. Module)
 
 ---
 
+## 7a. Console-Commands & geplante Aufgaben (optional)
+
+Ein Modul kann eigene Artisan-Befehle und zeitgesteuerte Läufe mitbringen.
+
+- Command-Klasse unter `app/Console/` (Namespace `Modules\<Name>\Console`).
+- Im ServiceProvider des Moduls registrieren und planen:
+
+```php
+// Modules/<Name>/app/Providers/<Name>ServiceProvider.php
+protected array $commands = [
+    \Modules\Userimport\Console\UserImportCommand::class,
+];
+
+protected function configureSchedules(Schedule $schedule): void
+{
+    $schedule->command('userimport:run')->dailyAt('03:00')->withoutOverlapping();
+}
+```
+
+Damit geplante Aufgaben auf dem Server laufen, muss **einmalig** ein Cronjob
+existieren (Plesk → Geplante Aufgaben):
+
+```cron
+* * * * * php /pfad/zum/projekt/artisan schedule:run >> /dev/null 2>&1
+```
+
+Referenz: Modul **`Modules/Userimport`** (CSV-Import, täglicher Lauf, n:n-Rollen).
+
+---
+
 ## 8. Checkliste für ein neues Modul
 
 1. `php artisan module:make <Name>` + `composer dump-autoload`
