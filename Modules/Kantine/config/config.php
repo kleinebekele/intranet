@@ -3,17 +3,6 @@
 return [
     'name' => 'Kantine',
 
-    /*
-    |--------------------------------------------------------------------------
-    | Navigation
-    |--------------------------------------------------------------------------
-    |
-    | Diese Einträge werden automatisch in die linke Hauptnavigation des
-    | Intranets eingelesen (siehe App\Support\ModuleNavigation). Jeder Eintrag
-    | unterstützt: label, route (oder url), icon (rohes SVG), active
-    | (Route-Pattern für den Aktiv-Zustand) und order (Sortierung).
-    |
-    */
     'navigation' => [
         [
             'label' => 'Kantine',
