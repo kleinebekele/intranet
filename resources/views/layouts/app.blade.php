@@ -15,22 +15,36 @@
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
     <body class="font-sans antialiased">
-        <div class="min-h-screen bg-gray-100">
-            @include('layouts.navigation')
+        <div x-data="{ sidebarOpen: false }" class="min-h-screen bg-gray-100">
+            <!-- Mobile sidebar backdrop -->
+            <div x-show="sidebarOpen"
+                 x-transition.opacity
+                 @click="sidebarOpen = false"
+                 class="fixed inset-0 z-30 bg-gray-900/50 lg:hidden"
+                 style="display: none;"></div>
 
-            <!-- Page Heading -->
-            @isset($header)
-                <header class="bg-white shadow">
-                    <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-                        {{ $header }}
-                    </div>
-                </header>
-            @endisset
+            <!-- Sidebar (left column) -->
+            @include('layouts.sidebar')
 
-            <!-- Page Content -->
-            <main>
-                {{ $slot }}
-            </main>
+            <!-- Right column: navbar + content + footer -->
+            <div class="flex min-h-screen flex-col lg:pl-64">
+                @include('layouts.navbar')
+
+                @isset($header)
+                    <header class="bg-white shadow">
+                        <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+                            {{ $header }}
+                        </div>
+                    </header>
+                @endisset
+
+                <!-- Page Content -->
+                <main class="flex-1">
+                    {{ $slot }}
+                </main>
+
+                @include('layouts.footer')
+            </div>
         </div>
     </body>
 </html>
